@@ -3,15 +3,17 @@
 //get name of day specific month year
 const getNameOfDay = (...props) => new Date(...props).toLocaleString('en-us', { weekday: 'long' })
 
+const getNameOfMonth = (e) => new Date(0, e, 1).toLocaleString('en-us', { month: 'long' })
+
 //get total day of specific year
 const getTotalDayOfYear = (...props) => new Date(...props).getDate()
 
 //names of month
-const month = [...Array(12)].map((e, i) => new Date(0, i, 1).toLocaleString('en-us', { month: 'long' }))
+const month = [...Array(12)].map((e, i) => getNameOfMonth(i))
 
 function getDaysOfMonth(year) {
 	//generate day of month specific year
-	let daysOfYear = month.map((e, indexMonth) => {
+	let daysOfYear = month.map((monthName, indexMonth) => {
 		const nDay = getTotalDayOfYear(year, indexMonth + 1, 0)
 		//loop day for get name,date,month
 		return [...Array(nDay)].map((e, indexDay) => {
@@ -19,7 +21,9 @@ function getDaysOfMonth(year) {
 			return ({
 				date: indexDay + 1,
 				month: indexMonth + 1,
+				year,
 				dayName,
+				monthName
 			})
 		})
 	}).flat(2) // merged all days
@@ -33,10 +37,13 @@ function getDaysOfMonth(year) {
 		const offsetInitialDay = [...Array(offset)].map((e, day) => {
 			const dateInitialDate = getTotalDayOfYear(year, month, 0)
 			const dayName = getNameOfDay(year, month - 1, dateInitialDate - (offset - (day + 1)))
+			const monthCode = month === 0 ? 12 - month : month
 			return {
 				date: dateInitialDate - (offset - (day + 1)),
-				month: month,
-				dayName
+				month: monthCode,
+				year: month === 0 ? year - 1 : year,
+				dayName,
+				monthName: getNameOfMonth(monthCode - 1)
 			}
 		})
 		//merge initial date
@@ -44,10 +51,13 @@ function getDaysOfMonth(year) {
 		//loop total day Left for insert date,month,dayname
 		const dayLeft = [...Array((daysOfMonth.length > 35 ? 42 : 35) - daysOfMonth.length)].map((e, day) => {
 			const dayName = getNameOfDay(year, month + 1, day + 1)
+			const monthCode = month === 11 ? 1 : month + 2
 			return {
 				date: day + 1,
-				month: (month === 11 ? 1 : month + 2),
+				month: monthCode,
+				year: month === 11 ? year + 1 : year,
 				dayName,
+				monthName: getNameOfMonth(monthCode - 1)
 			}
 		})
 		//merged day left
